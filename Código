@@ -1,0 +1,60 @@
+import java.io.*;
+import java.util.*;
+
+public class CSPGUI {
+
+    public static void main(String[] args) {
+        String inputFile = "C:/Users/marco/IdeaProjects/csp/src/car_sales.csv";
+        String outputFile = "sales_prefix_sum.csv";
+
+        try {
+            List<Double> sales = readSalesFromFile(inputFile);
+            List<Double> prefixSums = calculatePrefixSums(sales);
+            writePrefixSumsToFile(outputFile, prefixSums);
+
+            System.out.println("Tabla de sumas prefijas generada exitosamente.");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static List<Double> readSalesFromFile(String filename) throws IOException {
+        List<Double> sales = new ArrayList<>();
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(filename))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                String[] values = line.split(",");
+                for (String value : values) {
+                    if (value.startsWith("$")) {
+                        double sale = Double.parseDouble(value.substring(1).replace(",", ""));
+                        sales.add(sale);
+                    }
+                }
+            }
+        }
+
+        return sales;
+    }
+
+    private static List<Double> calculatePrefixSums(List<Double> sales) {
+        List<Double> prefixSums = new ArrayList<>(sales.size());
+        double prefixSum = 0;
+
+        for (double sale : sales) {
+            prefixSum += sale;
+            prefixSums.add(prefixSum);
+        }
+
+        return prefixSums;
+    }
+
+    private static void writePrefixSumsToFile(String filename, List<Double> prefixSums) throws IOException {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(filename))) {
+            for (double sum : prefixSums) {
+                writer.write(Double.toString(sum));
+                writer.newLine();
+            }
+        }
+    }
+}
